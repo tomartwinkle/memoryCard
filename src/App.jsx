@@ -1,35 +1,66 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useEffect, useState } from 'react';
+import './App.css';
+import CardContainer from './components/cardContainer';
+import Header from './components/header';
+import Scoreboard from './components/scoreboard';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [currentScore, setCurrentScore] = useState(0);
+  const [highestScore, setHighestScore] = useState(0);
+  const [pokemon, setPokemon] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchPokemons = async () => {
+      setLoading(true);
+      try {
+        const promises = [];
+        const usedIds = new Set();
+        while (usedIds.size < 9) {
+          const rand = Math.floor(Math.random() * 898) + 1;
+          usedIds.add(rand);
+        }
+        for (let id of usedIds) {
+          promises.push(
+            fetch(`https://pokeapi.co/api/v2/pokemon/${id}`).then(res => res.json())
+          );
+        }
+        const data = await Promise.all(promises);
+        const pokemonData = data.map(p => ({
+          id: p.id,
+          name: p.name,
+          image: p.sprites.front_default,
+        }));
+        setPokemon(pokemonData);
+        setLoading(false);
+      } catch (error) {
+        console.log("Failed to fetch Pokémon:", error);
+        setLoading(false);
+      }
+    };
+    fetchPokemons();
+  }, []);
 
   return (
     <>
+      <Header />
+      <Scoreboard currentScore={currentScore} highestScore={highestScore} />
       <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+        {loading ? (
+          <p>Loading Pokémon...</p>
+        ) : (
+          <div className="card-grid">
+            {pokemon.map(p => (
+              <div key={p.id} className="card">
+                <img src={p.image} alt={p.name} />
+                <p>{p.name}</p>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
