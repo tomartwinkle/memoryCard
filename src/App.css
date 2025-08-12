@@ -34,9 +34,19 @@
 }
 
 .card {
-  padding: 2em;
+  padding: 1em;
 }
 
 .read-the-docs {
   color: #888;
+}
+.card-grid{
+  margin-top: 50px;
+  display: flex;
+  flex-direction: row;
+}
+.card:hover{
+  background-color: #29282883;
+  border: 2px solid rgb(37, 227, 66);
+  border-radius: 10px;
 }

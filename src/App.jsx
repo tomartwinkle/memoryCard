@@ -9,6 +9,7 @@ function App() {
   const [highestScore, setHighestScore] = useState(0);
   const [pokemon, setPokemon] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [clickedCards,setClickedCards]=useState([]);
 
   useEffect(() => {
     const fetchPokemons = async () => {
@@ -41,6 +42,29 @@ function App() {
     fetchPokemons();
   }, []);
 
+  function handleCardClick(id){
+    if(clickedCards.includes(id)){
+      setCurrentScore(0);
+      setClickedCards([]);
+    }
+    else{
+      const newScore=currentScore+1;
+      setCurrentScore(newScore);
+      if(newScore>highestScore){
+        setHighestScore(newScore);
+      }
+      setClickedCards(prev=>[...prev,id]);
+    }
+    setPokemon(prev=>shuffleArray([...prev]));
+  }
+
+  function shuffleArray(array){
+    for(let i=array.length-1;i>0;i--){
+      const j=Math.floor(Math.random()*(i+1));
+      [array[i],array[j]]=[array[j],array[i]];
+    }
+    return array;
+  }
   return (
     <>
       <Header />
@@ -50,8 +74,9 @@ function App() {
           <p>Loading Pokémon...</p>
         ) : (
           <div className="card-grid">
+            console.log("Cards to render:", cards);
             {pokemon.map(p => (
-              <div key={p.id} className="card">
+              <div key={p.id} className="card" onClick={() => handleCardClick(p.id)}>
                 <img src={p.image} alt={p.name} />
                 <p>{p.name}</p>
               </div>
